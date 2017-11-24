@@ -4,10 +4,11 @@
     "author": "Raymond SO <rso@ouhk.edu.hk>",
     "version": "0.0.1",
     "dependencies": {
-        "express": "*",
-        "ejs": "*",
         "body-parser": "*",
-        "cookie-session": "*"
+        "cookie-session": "*",
+        "ejs": "*",
+        "express": "^4.16.2",
+        "nodemon": "^1.12.1"
     },
     "engine": "node >= 0.10.0",
     "scripts": {

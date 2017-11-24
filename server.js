@@ -44,9 +44,13 @@ app.post('/login',function(req,res) {
 		    users[i].password == req.body.password) {
 			req.session.authenticated = true;
 			req.session.username = users[i].name;
+			res.redirect('/');
+			break;
+		}
+		else {
+			res.end('You are not an user or your password is wrong');
 		}
 	}
-	res.redirect('/');
 });
 
 app.get('/logout',function(req,res) {
