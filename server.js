@@ -61,7 +61,22 @@ app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
 });
-
+app.post('/restaurant',function(req,res){
+	//TODO add restauramt
+});
+app.get('/restaurant',function(req,res){
+	//TODO get restaurant
+	//depends on query
+})
+app.patch('/restaurant',function(req,res){
+	//TODO modify restaurant and rating
+})
+app.delete('/restaurant',function(req,res){
+	//TODO delete restaurant
+})
+app.get('/search',function(req,res){
+	//TODO filter restaurant
+})
 //Method for mongodb ops
 function read_n_print(res,criteria,max) {
 	MongoClient.connect(mongourl, function(err, db) {
