@@ -18,7 +18,6 @@ var users = new Array(
 	{name: 'guest', password: 'guest'}
 );
 
-app.set('view engine','ejs');
 
 app.use(session({
   name: 'session',
@@ -63,10 +62,19 @@ app.get('/logout',function(req,res) {
 });
 app.post('/restaurant',function(req,res){
 	//TODO add restauramt
+	var body = req.body;
+	create(res,body);
 });
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
+	if(req.qurey.id != null){
+
+	}else if(req.query.num != null){
+
+	}else{
+		
+	}
 })
 app.patch('/restaurant',function(req,res){
 	//TODO modify restaurant and rating
@@ -153,6 +161,7 @@ function create(res,queryAsObject) {
 		insertRestaurant(db,new_r,function(result) {
 			db.close();
 			res.writeHead(200, {"Content-Type": "text/plain"});
+			//todo add ejc here
 			res.write(JSON.stringify(new_r));
 			res.end("\ninsert was successful!");			
 		});
