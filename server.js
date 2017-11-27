@@ -299,6 +299,8 @@ function findRestaurants(db,criteria,max,callback) {
 	});
 }
 
+
+
 function insertRestaurant(db,r,callback) {
 	db.collection('restaurants').insertOne(r,function(err,result) {
 		assert.equal(err,null);
@@ -323,7 +325,7 @@ function findDistinctBorough(db,callback) {
 	});
 }
 function updateRestaurant(db,_id,criteria,callback) {
-	db.collection('restaurants').updateOne(_id,criteria,function(err,result) {
+	db.collection('restaurants').updateOne({'$_id':ObjectID(_id)},criteria,function(err,result) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);
