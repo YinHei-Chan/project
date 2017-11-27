@@ -7,7 +7,9 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var mongourl = 'mongodb://localhost:27017/test';
 var request = require('request');
+var fileUpload = require('express-fileupload');
 
+app.use(fileUpload());
 app.set('view engine','ejs');
 
 var SECRETKEY1 = 'I want to pass COMPS381F';
@@ -93,7 +95,7 @@ app.post('restaurant',function(req,res){
     if (body.status == 'ok') {
         // Print out the response body
 				console.log(body)
-				res.redirect('/restaurantDetail?_id='+req.qurey._id)
+				res.redirect('/restaurantDetail?_id='+req.query._id)
     }else{
 			res.status(500);
 			res.end("internal server error")
@@ -104,11 +106,11 @@ app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
 		if(req.query._id != null){
-		  res.redirect('/restaurantDetail?_id='+req.query._id);
+		  res.redirect('/restaurantDetail?_id='+req.query._id)
   	}else if(req.query.num != null){
-			readandprint();
+			readandprint()
   	}else{
- 			res.status(200).render('create');
+ 			res.status(200).render('create')
   	}
 });
 app.patch('/restaurant',function(req,res){
@@ -133,7 +135,7 @@ app.get('/search',function(req,res){
 })
 app.get('/restaurantDetail',function(req,res){
 	//get one
-	
+	resdatail(res,{_id:ObjectID(req.query._id)},1);
 })
 app.post('/rate',function(req,res){
 	req.body.grades.forEach(function(p){
@@ -186,8 +188,8 @@ function create(res,queryAsObject) {
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if (queryAsObject.photo) new_r['photo'] = queryAsObject.photo;
-	if (queryAsObject.photo_mime) new_r['photo_mime'] = queryAsObject.photo_mime;
+	if (queryAsObject.files.photo) new_r['photo'] = queryAsObject.files.photo.data.toString('base64');
+	if (queryAsObject.files.photo) new_r['photo_mime'] = queryAsObject.files.photo.mimetype;
 	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
 		var address = {};
 		if (queryAsObject.building) address['building'] = queryAsObject.building;
@@ -229,7 +231,22 @@ function remove(res,criteria) {
 		});
 	});
 }
-
+function resdatail(res,criteria,max) {
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		findRestaurants(db,criteria,max,function(restaurants) {
+			db.close();
+			console.log('Disconnected MongoDB\n');
+			if (restaurants.length == 0) {
+				res.writeHead(500, {"Content-Type": "text/plain"});
+				res.end('Not found!');
+			}else{
+				res.render('detail',restaurants);
+			}
+		}
+	)}
+)}
 function findRestaurants(db,criteria,max,callback) {
 	var restaurants = [];
 	if (max > 0) {
