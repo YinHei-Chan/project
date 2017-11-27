@@ -115,7 +115,7 @@ app.get('/restaurant',function(req,res){
 app.patch('/restaurant',function(req,res){
 	//TODO modify restaurant and rating
 	if(req.body.owner == req.session.username)
-		update();
+		update(res,req.body);
 	else{
 		res.status(401);
 	}
@@ -180,6 +180,42 @@ function searchbyborough(res) {
 		});
  	});
 }
+function update(res,queryAsObject){
+	var new_r = {};	// document to be inserted
+	if (queryAsObject.id) new_r['resId'] = queryAsObject.resID;
+	new_r['resName'] = queryAsObject.resName;
+	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
+	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
+	if (queryAsObject.files.photo) new_r['photo'] = queryAsObject.files.photo.data.toString('base64');
+	if (queryAsObject.files.photo) new_r['photo_mime'] = queryAsObject.files.photo.mimetype;
+	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
+		var address = {};
+		if (queryAsObject.building) address['building'] = queryAsObject.building;
+		if (queryAsObject.street) address['street'] = queryAsObject.street;
+		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
+		if (queryAsObject.coord) address['lon'] = queryAsObject.lon;
+		if (queryAsObject.coord) address['lat'] = queryAsObject.lat;
+		new_r['address'] = address;
+	}
+	if (queryAsObject.score) {
+		var grade = {};
+		grade['user'] = queryAsObject.user;
+		grade['score'] = queryAsObject.score;
+		new_r['grades'] = grade;
+	}
+	new_r['owner'] = queryAsObject.owner;
+
+	console.log('About to insert: ' + JSON.stringify(new_r));
+
+	MongoClient.connect(mongourl,function(err,db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		updateRestaurant(db,queryAsObject._id,new_r,function(result) {
+			db.close();
+			res.redirect('/restaurantDetail?_id='+queryAsObject._id)
+		});
+	});
+}
 
 function create(res,queryAsObject) {
 	var new_r = {};	// document to be inserted
@@ -213,7 +249,7 @@ function create(res,queryAsObject) {
 		console.log('Connected to MongoDB\n');
 		insertRestaurant(db,new_r,function(result) {
 			db.close();
-			res.redirect('/')			
+			res.redirect('/');			
 		});
 	});
 }
@@ -283,6 +319,13 @@ function deleteRestaurant(db,criteria,callback) {
 function findDistinctBorough(db,callback) {
 	db.collection('restaurants').distinct("borough", function(err,result) {
 		console.log(result);
+		callback(result);
+	});
+}
+function updateRestaurant(db,_id,criteria,callback) {
+	db.collection('restaurants').updateOne(_id,criteria,function(err,result) {
+		assert.equal(err,null);
+		console.log("Delete was successfully");
 		callback(result);
 	});
 }
