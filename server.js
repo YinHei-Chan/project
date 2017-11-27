@@ -103,12 +103,12 @@ app.post('restaurant',function(req,res){
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
-		if(req.qurey._id != null){
-		  res.redirect('/restaurantDetail?_id='+req.qurey._id)
+		if(req.query._id != null){
+		  res.redirect('/restaurantDetail?_id='+req.query._id);
   	}else if(req.query.num != null){
-			readandprint()
+			readandprint();
   	}else{
- 			res.status(200).render('create')
+ 			res.status(200).render('create');
   	}
 });
 app.patch('/restaurant',function(req,res){
