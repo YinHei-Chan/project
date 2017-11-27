@@ -65,7 +65,7 @@ app.post('/login',function(req,res) {
 	}
 });
 app.get('/register',function(req,res){
-	res.sendFile(__dirname + '/public/register.html');
+	res.render('register');
 })
 app.post('/register',function(req,res){
 	//TODO add reg function
@@ -134,7 +134,7 @@ app.get('/search',function(req,res){
 })
 app.get('/restaurantDetail',function(req,res){
 	//get one
-	resdatail(res,{_id:ObjectID(req.query._id)},1);
+	resdetail(res,{_id:ObjectID(req.query._id)},1);
 })
 app.post('/rate',function(req,res){
 	req.body.grades.forEach(function(p){
@@ -266,7 +266,7 @@ function remove(res,criteria) {
 		});
 	});
 }
-function resdatail(res,criteria,max) {
+function resdetail(res,criteria,max) {
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
