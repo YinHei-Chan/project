@@ -82,7 +82,7 @@ app.get('/restaurant',function(req,res){
 	}else if(req.query.num != null){
 
 	}else{
-		res.sendFile(__dirname + '');
+		read_n_print(res,{},5);
 	}
 })
 app.patch('/restaurant',function(req,res){
@@ -109,7 +109,16 @@ app.get('/restaurantDetail',function(req,res){
 	//get one
 	//use what as index?
 })
-
+app.post('/rate',function(req,res){
+	req.body.grades.forEach(function(p){
+		if(p.name == req.session.name){
+			res.end('you have already rated this');
+			break;
+		}
+	});
+	//TODO modify restaurant
+	modifyrestaurant();
+})
 //Method for mongodb ops
 function read_n_print(res,criteria,max) {
 	MongoClient.connect(mongourl, function(err, db) {
@@ -254,5 +263,8 @@ function findDistinctBorough(db,callback) {
 		callback(result);
 	});
 }
-
+function gpsDecimal(direction,degrees,minutes,seconds) {
+  var d = degrees + minutes / 60 + seconds / (60 * 60);
+  return (direction === 'S' || direction === 'W') ? d *= -1 : d;
+}
 app.listen(process.env.PORT || 8099);
