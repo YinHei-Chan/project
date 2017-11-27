@@ -32,7 +32,15 @@ app.get('/',function(req,res) {
 	if (!req.session.authenticated) {
 		res.redirect('/login');
 	} else {
-		res.redirect('/restaurant');
+		MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		findRestaurants(db,{},20,function(restaurants) {
+			db.close();
+			console.log('Disconnected MongoDB\n');	
+					res.status(200).render('home',{name:req.session.username,re:restaurants});
+		}); 
+	});
 	}
 });
 
@@ -76,15 +84,7 @@ app.post('/restaurant',function(req,res){
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
-		MongoClient.connect(mongourl, function(err, db) {
-		assert.equal(err,null);
-		console.log('Connected to MongoDB\n');
-		findRestaurants(db,{},20,function(restaurants) {
-			db.close();
-			console.log('Disconnected MongoDB\n');	
-					res.status(200).render('home',{name:req.session.username,re:restaurants});
-		}); 
-	});
+		
 });
 app.patch('/restaurant',function(req,res){
 	//TODO modify restaurant and rating
