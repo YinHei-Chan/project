@@ -7,7 +7,6 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var mongourl = 'mongodb://localhost:27017/test';
 
-app = express();
 app.set('view engine','ejs');
 
 var SECRETKEY1 = 'I want to pass COMPS381F';
@@ -55,7 +54,12 @@ app.post('/login',function(req,res) {
 		}
 	}
 });
-
+app.get('/register',function(req,res){
+	res.sendFile(__dirname + '/public/register.html');
+})
+app.post('/register',function(req,res){
+	//TODO add reg function
+})
 app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
@@ -69,11 +73,11 @@ app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
 	if(req.qurey.id != null){
-
-	}else if(req.query.num != null){
+		
+	}else if(req.query.num != null && req.query.id == null){
 
 	}else{
-		
+		res.sendFile(__dirname + '/public/login.html');
 	}
 })
 app.patch('/restaurant',function(req,res){
@@ -81,9 +85,19 @@ app.patch('/restaurant',function(req,res){
 })
 app.delete('/restaurant',function(req,res){
 	//TODO delete restaurant
+	if (req.session.username == req.body.owner){
+		remove(res,req.body.id);
+	}else{
+		res.status(401);
+		res.end("you are not the owner of the document");
+	}
 })
 app.get('/search',function(req,res){
 	//TODO filter restaurant
+})
+app.get('/restaurantDetail',function(req,res){
+	//get one
+	//use what as index?
 })
 //Method for mongodb ops
 function read_n_print(res,criteria,max) {
@@ -143,7 +157,7 @@ function searchbyborough(res) {
 function create(res,queryAsObject) {
 	var new_r = {};	// document to be inserted
 	if (queryAsObject.id) new_r['id'] = queryAsObject.id;
-	if (queryAsObject.name) new_r['name'] = queryAsObject.name;
+	new_r['name'] = queryAsObject.name;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
 	if (queryAsObject.building || queryAsObject.street) {
@@ -152,6 +166,7 @@ function create(res,queryAsObject) {
 		if (queryAsObject.street) address['street'] = queryAsObject.street;
 		new_r['address'] = address;
 	}
+	new_r['owner'] = queryAsObject.owner;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
