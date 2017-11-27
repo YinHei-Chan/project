@@ -32,8 +32,7 @@ app.get('/',function(req,res) {
 	if (!req.session.authenticated) {
 		res.redirect('/login');
 	} else {
-		res.status(200);
-		res.render('home',{name:req.session.username});
+		res.redirect('/restaurant');
 	}
 });
 
@@ -77,14 +76,16 @@ app.post('/restaurant',function(req,res){
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
-	if(req.qurey._id != null){
-		
-	}else if(req.query.num != null){
-
-	}else{
-		read_n_print(res,{},5);
-	}
-})
+		MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		findRestaurants(db,{},20,function(restaurants) {
+			db.close();
+			console.log('Disconnected MongoDB\n');	
+					res.status(200).render('home',{name:req.session.username,re:restaurants});
+		}); 
+	});
+});
 app.patch('/restaurant',function(req,res){
 	//TODO modify restaurant and rating
 	if(req.body.owner == req.session.username)
@@ -113,39 +114,12 @@ app.post('/rate',function(req,res){
 	req.body.grades.forEach(function(p){
 		if(p.name == req.session.name){
 			res.end('you have already rated this');
-			break;
 		}
 	});
 	//TODO modify restaurant
 	modifyrestaurant();
 })
 //Method for mongodb ops
-function read_n_print(res,criteria,max) {
-	MongoClient.connect(mongourl, function(err, db) {
-		assert.equal(err,null);
-		console.log('Connected to MongoDB\n');
-		findRestaurants(db,criteria,max,function(restaurants) {
-			db.close();
-			console.log('Disconnected MongoDB\n');
-			if (restaurants.length == 0) {
-				res.writeHead(500, {"Content-Type": "text/plain"});
-				res.end('Not found!');
-			} else {
-				res.writeHead(200, {"Content-Type": "text/html"});			
-				res.write('<html><head><title>Restaurant</title></head>');
-				res.write('<body><H1>Restaurants</H1>');
-				res.write('<H2>Showing '+restaurants.length+' document(s)</H2>');
-				res.write('<ol>');
-				for (var i in restaurants) {
-					res.write('<li>'+restaurants[i].name+'</li>');
-				}
-				res.write('</ol>');
-				res.end('</body></html>');
-				return(restaurants);
-			}
-		}); 
-	});
-}
 
 function searchbyborough(res) {
 	MongoClient.connect(mongourl, function(err, db) {
