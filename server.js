@@ -14,7 +14,8 @@ var SECRETKEY2 = 'Keep this to yourself';
 
 var users = new Array(
 	{name: 'developer', password: 'developer'},
-	{name: 'guest', password: 'guest'}
+	{name: 'guest', password: 'guest'},
+	{name: 'raymondso',password:'diuar'}
 );
 
 
@@ -32,7 +33,7 @@ app.get('/',function(req,res) {
 		res.redirect('/login');
 	} else {
 		res.status(200);
-		res.render('secrets',{name:req.session.username});
+		res.render('home',{name:req.session.username});
 	}
 });
 
@@ -59,6 +60,10 @@ app.get('/register',function(req,res){
 })
 app.post('/register',function(req,res){
 	//TODO add reg function
+	users.push({name: req.body.name, password: req.body.password});
+	res.status(200);
+	res.write("register successful");
+	res.redirect("/login");
 })
 app.get('/logout',function(req,res) {
 	req.session = null;
@@ -72,21 +77,26 @@ app.post('/restaurant',function(req,res){
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
-	if(req.qurey.id != null){
+	if(req.qurey._id != null){
 		
-	}else if(req.query.num != null && req.query.id == null){
+	}else if(req.query.num != null){
 
 	}else{
-		res.sendFile(__dirname + '/public/login.html');
+		res.sendFile(__dirname + '');
 	}
 })
 app.patch('/restaurant',function(req,res){
 	//TODO modify restaurant and rating
+	if(req.body.owner == req.session.username)
+		update();
+	else{
+		res.status(401);
+	}
 })
 app.delete('/restaurant',function(req,res){
 	//TODO delete restaurant
 	if (req.session.username == req.body.owner){
-		remove(res,req.body.id);
+		remove(res,{'id':req.body.id});
 	}else{
 		res.status(401);
 		res.end("you are not the owner of the document");
@@ -99,6 +109,7 @@ app.get('/restaurantDetail',function(req,res){
 	//get one
 	//use what as index?
 })
+
 //Method for mongodb ops
 function read_n_print(res,criteria,max) {
 	MongoClient.connect(mongourl, function(err, db) {
@@ -160,11 +171,21 @@ function create(res,queryAsObject) {
 	new_r['name'] = queryAsObject.name;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if (queryAsObject.building || queryAsObject.street) {
+	if (queryAsObject.photo) new_r['photo'] = queryAsObject.photo;
+	if (queryAsObject.photo_mime) new_r['photo_mime'] = queryAsObject.photo_mime;
+	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
 		var address = {};
 		if (queryAsObject.building) address['building'] = queryAsObject.building;
 		if (queryAsObject.street) address['street'] = queryAsObject.street;
+		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
+		if (queryAsObject.coord) address['coord'] = queryAsObject.coord;
 		new_r['address'] = address;
+	}
+	if (queryAsObject.score) {
+		var grade = {};
+		grade['user'] = queryAsObject.user;
+		grade['score'] = queryAsObject.score;
+		new_r['grades'] = grade;
 	}
 	new_r['owner'] = queryAsObject.owner;
 
@@ -175,10 +196,7 @@ function create(res,queryAsObject) {
 		console.log('Connected to MongoDB\n');
 		insertRestaurant(db,new_r,function(result) {
 			db.close();
-			res.writeHead(200, {"Content-Type": "text/plain"});
-			//todo add ejc here
-			res.write(JSON.stringify(new_r));
-			res.end("\ninsert was successful!");			
+			res.redirect('/')			
 		});
 	});
 }
@@ -223,7 +241,7 @@ function insertRestaurant(db,r,callback) {
 }
 
 function deleteRestaurant(db,criteria,callback) {
-	db.collection('restaurants').deleteMany(criteria,function(err,result) {
+	db.collection('restaurants').deleteOne(criteria,function(err,result) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);
