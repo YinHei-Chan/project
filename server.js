@@ -6,6 +6,7 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var mongourl = 'mongodb://localhost:27017/test';
+var request = require('request');
 
 app.set('view engine','ejs');
 
@@ -76,15 +77,39 @@ app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
 });
-app.post('/restaurant',function(req,res){
+app.post('restaurant',function(req,res){
 	//TODO add restauramt
-	var body = req.body;
-	create(res,body);
+	var headers = {
+    'User-Agent':       'server/0.0.1',
+    'Content-Type':     'application/x-www-form-urlencoded'
+}
+	var options = {
+    url: '/api/restaurant/create',
+    method: 'POST',
+    headers: headers,
+    body: req.body
+}
+	request(options, function (error, res, body) {
+    if (body.status == 'ok') {
+        // Print out the response body
+				console.log(body)
+				res.redirect('/restaurantDetail?_id='+req.qurey._id)
+    }else{
+			res.status(500);
+			res.end("internal server error")
+		}
+})
 });
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
 	//depends on query
-		
+		if(req.qurey._id != null){
+		  res.redirect('/restaurantDetail?_id='+req.qurey._id)
+  	}else if(req.query.num != null){
+			readandprint()
+  	}else{
+ 			res.status(200).render('create')
+  	}
 });
 app.patch('/restaurant',function(req,res){
 	//TODO modify restaurant and rating
@@ -108,7 +133,7 @@ app.get('/search',function(req,res){
 })
 app.get('/restaurantDetail',function(req,res){
 	//get one
-	//use what as index?
+	
 })
 app.post('/rate',function(req,res){
 	req.body.grades.forEach(function(p){
@@ -119,6 +144,13 @@ app.post('/rate',function(req,res){
 	//TODO modify restaurant
 	modifyrestaurant();
 })
+app.post('api/restaurant/create',function(req,res){
+	//TODO add restauramt
+	var body = req.body;
+	create(res,body);
+});
+
+
 //Method for mongodb ops
 
 function searchbyborough(res) {
@@ -150,18 +182,19 @@ function searchbyborough(res) {
 
 function create(res,queryAsObject) {
 	var new_r = {};	// document to be inserted
-	if (queryAsObject.id) new_r['id'] = queryAsObject.id;
-	new_r['name'] = queryAsObject.name;
+	if (queryAsObject.id) new_r['resId'] = queryAsObject.resID;
+	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
 	if (queryAsObject.photo) new_r['photo'] = queryAsObject.photo;
 	if (queryAsObject.photo_mime) new_r['photo_mime'] = queryAsObject.photo_mime;
-	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.coord) {
+	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
 		var address = {};
 		if (queryAsObject.building) address['building'] = queryAsObject.building;
 		if (queryAsObject.street) address['street'] = queryAsObject.street;
 		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
-		if (queryAsObject.coord) address['coord'] = queryAsObject.coord;
+		if (queryAsObject.coord) address['lon'] = queryAsObject.lon;
+		if (queryAsObject.coord) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
 	if (queryAsObject.score) {
