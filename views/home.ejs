@@ -1,0 +1,16 @@
+<html>
+<h1>Restaurant</h1>
+<body>
+<p>User: <%= name %> </p>
+<p>Number of restaurant: <%= re.length %> </p>
+<form action="/restaurant" method="get">
+<input type="submit" value="Create new restaurant">
+</form>
+<ul>
+<% re.forEach(function(p) {%>
+  <li><a href=/restaurantDetail?id=<%= p.id %>><%= p.name %></a></li>
+<% }); %>
+</ul>
+</script>
+</body>
+</html>
