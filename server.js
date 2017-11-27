@@ -6,7 +6,7 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var request = require('request');
 var fileUpload = require('express-fileupload');
-var mongourl = 'mongodb://localhost:27017/test';
+var mongourl = 'mongodb://381project:project381@ds139904.mlab.com:39904/nancyyang';
 var app = express();
 app.use(fileUpload());
 app.set('view engine','ejs');
@@ -40,7 +40,7 @@ app.get('/',function(req,res) {
 		findRestaurants(db,{},20,function(restaurants) {
 			db.close();
 			console.log('Disconnected MongoDB\n');	
-					res.status(200).render('home',{name:req.session.username,re:restaurants});
+					res/*.status(200)*/.render('home',{name:req.session.username,re:restaurants});
 		}); 
 	});
 	}
@@ -70,8 +70,9 @@ app.get('/register',function(req,res){
 app.post('/register',function(req,res){
 	//TODO add reg function
 	users.push({name: req.body.name, password: req.body.password});
-	res.status(200);
-	res.write("register successful");
+	console.log(users);
+	//res.status(200);
+	//res.write("register successful");
 	res.redirect("/login");
 })
 app.get('/logout',function(req,res) {
@@ -134,7 +135,7 @@ app.get('/search',function(req,res){
 })
 app.get('/restaurantDetail',function(req,res){
 	//get one
-	resdetail(res,{_id:ObjectID(req.query._id)},1);
+	resdetail(res,{_id:ObjectId(req.query._id)},1);
 })
 app.post('/rate',function(req,res){
 	req.body.grades.forEach(function(p){
@@ -285,9 +286,9 @@ function resdetail(res,criteria,max) {
 function findRestaurants(db,criteria,max,callback) {
 	var restaurants = [];
 	if (max > 0) {
-		cursor = db.collection('restaurants').find(criteria).limit(max); 		
+		cursor = db.collection('project').find(criteria).limit(max); 		
 	} else {
-		cursor = db.collection('restaurants').find(criteria); 				
+		cursor = db.collection('project').find(criteria); 				
 	}
 	cursor.each(function(err, doc) {
 		assert.equal(err, null); 
@@ -302,7 +303,7 @@ function findRestaurants(db,criteria,max,callback) {
 
 
 function insertRestaurant(db,r,callback) {
-	db.collection('restaurants').insertOne(r,function(err,result) {
+	db.collection('project').insertOne(r,function(err,result) {
 		assert.equal(err,null);
 		console.log("Insert was successful!");
 		console.log(JSON.stringify(result));
@@ -311,7 +312,7 @@ function insertRestaurant(db,r,callback) {
 }
 
 function deleteRestaurant(db,criteria,callback) {
-	db.collection('restaurants').deleteOne(criteria,function(err,result) {
+	db.collection('project').deleteOne(criteria,function(err,result) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);
@@ -319,13 +320,13 @@ function deleteRestaurant(db,criteria,callback) {
 }
 
 function findDistinctBorough(db,callback) {
-	db.collection('restaurants').distinct("borough", function(err,result) {
+	db.collection('project').distinct("borough", function(err,result) {
 		console.log(result);
 		callback(result);
 	});
 }
 function updateRestaurant(db,_id,criteria,callback) {
-	db.collection('restaurants').updateOne({'$_id':ObjectID(_id)},criteria,function(err,result) {
+	db.collection('project').updateOne({'$_id':ObjectID(_id)},criteria,function(err,result) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);
