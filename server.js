@@ -51,18 +51,16 @@ app.get('/login',function(req,res) {
 });
 
 app.post('/login',function(req,res) {
+	console.log(req);
 	for (var i=0; i<users.length; i++) {
 		if (users[i].name == req.body.name &&
 		    users[i].password == req.body.password) {
 			req.session.authenticated = true;
 			req.session.username = users[i].name;
 			res.redirect('/');
-			break;
-		}
-		else {
-			res.end('You are not an user or your password is wrong');
-		}
+		}	
 	}
+	res.end('You are not an user or your password is wrong');
 });
 app.get('/register',function(req,res){
 	res.render('register');
