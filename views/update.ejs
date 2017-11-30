@@ -1,7 +1,7 @@
 <http>
   <body>
     <form action="/update?_id=<%= re._id%>" method="POST" encType="multipart/form-data">
-      Restaurant Name:<input type="text" name="resName" value="<%= re.resName %>"><br>
+      Restaurant Name:<input type="text" name="resName" value="<%= re.resName %>" required><br>
       Restaurant ID:<input type="text" name="resID" value="<%= re.resID %>"><br>
       Borough:<input type="text" name="borough" value="<%= re.borough %>"><br>
       Cuisine:<input type="text" name="cuisine" value="<%= re.cuisine %>"><br>
@@ -13,7 +13,7 @@
       GPS Coordinates (lon.)<input type="text" name="lon" value="<%= re.address.lon %>"><br>
       Photo:<input type="file" name="photo"><br>
       <input type="hidden" name="owner" value="<%= re.owner %>">
-      <input type="submit" value="Upload">
+      <input type="submit" value="Update">
     </form>
   </body>
 </html>

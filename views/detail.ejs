@@ -17,7 +17,7 @@
                 <% }); %>
             </ol></p>
         <p><a href="/map?lat=<%= re.address.lat %>&lon=<%= re.address.lon %>">Google Map</a></p><br>
-        <p><a href=/rate>Rate</a><br><a href="/update?_id=<%= re._id %>">Edit</a><br><a href="/">Go Back</a></p>
+        <p><a href="/rate?_id=<%= re._id %>">Rate</a><br><a href="/update?_id=<%= re._id %>">Edit</a><br><a href="/">Go Back</a></p>
         <form action="/deleteRestaurant?_id=<%= re._id %>" method="POST"><input type="hidden" name="owner" value="<%= re.owner %>"><input type="submit" value="Delete"></form>
     </body>
 </html>

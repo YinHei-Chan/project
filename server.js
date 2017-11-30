@@ -47,7 +47,7 @@ app.get('/',function(req,res) {
 });
 
 app.get('/login',function(req,res) {
-	res.sendFile(__dirname + '/public/login.html');
+	res.render('login');
 });
 
 app.post('/login',function(req,res) {
@@ -161,14 +161,31 @@ app.get('/restaurantDetail',function(req,res){
 	//get one
 	resdetail(res,{_id:ObjectId(req.query._id)},1);
 })
+app.get('/rate', function(req,res){
+	if(req.query._id != null){
+		MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		findRestaurants(db,{_id:ObjectId(req.query._id)},1,function(restaurants) {
+			db.close();
+			console.log('Disconnected MongoDB\n');
+			restaurants.grades.forEach(function(p){
+			if(p.name == req.session.name){
+				res.end('you have already rated this');
+				}});
+			if (restaurants.length == 0) {
+				res.writeHead(500, {"Content-Type": "text/plain"});
+				res.end('Not found!');
+			}else{
+				res.render('rating',{re:restaurants[0]});
+			}})
+		})}else{
+		res.status(401);
+	}
+})
 app.post('/rate',function(req,res){
-	req.body.grades.forEach(function(p){
-		if(p.name == req.session.name){
-			res.end('you have already rated this');
-		}
-	});
 	//TODO modify restaurant
-	update();
+	updateScore(res,req.body);
 })
 app.post('/api/restaurant/create',function(req,res){
 	//TODO add restauramt
@@ -287,7 +304,7 @@ function update(req,res,queryAsObject){
 		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
-		new_r['grades'] = [];
+		
 
 	new_r['owner'] = req.session.username;
 	console.log('About to insert: ' + JSON.stringify(new_r));
@@ -299,6 +316,22 @@ function update(req,res,queryAsObject){
 		updateRestaurant(db,req.query._id,new_r,function(result) {
 			db.close();
 			res.redirect('/restaurantDetail?_id='+target);
+		});
+	});
+}
+
+function rating(req, res, queryAsObject){
+	var rated = [];
+	rated['user'] = res.session.username;
+	rated['score'] = queryAsObject.grades.score;
+	console.log('About to insert: ' + JSON.stringify(rated));
+
+	MongoClient.connect(mongourl,function(err,db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		updateRestaurant(db,req.query._id,rated,function(result) {
+			db.close();
+			res.redirect('/restaurantDetail?_id='+req.query._id);
 		});
 	});
 }
@@ -412,6 +445,13 @@ function updateRestaurant(db,target,criteria,callback) {
 	db.collection('project').updateOne({_id:ObjectId(target)},{$set:criteria},function(err,result) {
 		assert.equal(err,null);
 		console.log("UPDATE was successfully");
+		callback(result);
+	});
+}
+function updateScore(db, target, criteria, callback){
+	db.collection('project').updateOne({_id:ObjectId(target)}, {$push: {grades: criteria}}, function(err, result){
+		assert.equal(err,null);
+		console.log('Rating success');
 		callback(result);
 	});
 }
