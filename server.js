@@ -1,3 +1,5 @@
+
+
 var express = require('express');
 var session = require('cookie-session');
 var bodyParser = require('body-parser');
@@ -77,28 +79,32 @@ app.get('/logout',function(req,res) {
 	req.session = null;
 	res.redirect('/');
 });
-app.post('restaurant',function(req,res){
+app.post('/restaurant',function(req,res){
 	//TODO add restauramt
-	var headers = {
+/*	var headers = {
     'User-Agent':       'server/0.0.1',
     'Content-Type':     'application/x-www-form-urlencoded'
 }
 	var options = {
-    url: '/api/restaurant/create',
     method: 'POST',
     headers: headers,
-    body: req.body
+	body: JSON.stringify(req.body),
+	port:8099
 }
-	request(options, function (error, res, body) {
+	request('http://localhost:8099/api/restaurant/create',options, function (error, res, body) {
+		console.log(error);
+		console.log(body);
     if (body.status == 'ok') {
         // Print out the response body
 				console.log(body)
 				res.redirect('/restaurantDetail?_id='+req.query._id)
     }else{
-			res.status(500);
-			res.end("internal server error")
+
+			
 		}
-})
+	})*/
+	var body = req.body;
+	create(res,body);
 });
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
@@ -222,8 +228,10 @@ function create(res,queryAsObject) {
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if (queryAsObject.files.photo) new_r['photo'] = queryAsObject.files.photo.data.toString('base64');
-	if (queryAsObject.files.photo) new_r['photo_mime'] = queryAsObject.files.photo.mimetype;
+	if(queryAsObject.files){
+		if (queryAsObject.files.photo) new_r['photo'] = queryAsObject.files.photo.data.toString('base64');
+		if (queryAsObject.files.photo) new_r['photo_mime'] = queryAsObject.files.photo.mimetype;
+	}
 	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
 		var address = {};
 		if (queryAsObject.building) address['building'] = queryAsObject.building;
