@@ -40,7 +40,7 @@ app.get('/',function(req,res) {
 		findRestaurants(db,{},20,function(restaurants) {
 			db.close();
 			console.log('Disconnected MongoDB\n');	
-					res/*.status(200)*/.render('home',{name:req.session.username,re:restaurants});
+					res.status(200).render('home',{name:req.session.username,re:restaurants});
 		}); 
 	});
 	}

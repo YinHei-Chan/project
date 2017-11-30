@@ -6,7 +6,7 @@
 <p><a href=/restaurant>Create New Restaurant</a></p>
 <ul>
 <% re.forEach(function(p) {%>
-  <li><a href=/restaurantDetail?id=<%= p.id %>><%= p.name %></a></li>
+  <li><a href=/restaurantDetail?id=<%= p.id %>><%= p.resName %></a></li>
 <% }); %>
 </ul>
 </script>
