@@ -1,0 +1,18 @@
+<http>
+  <body>
+    <form action="/update" method="POST" encType="multipart/form-data">
+      Restaurant Name:<input type="text" name="resName" value="<%= re.resName %>"><br>
+      Restaurant ID:<input type="text" name="resID" value="<%= re.resID %>"><br>
+      Borough:<input type="text" name="borough"><br>
+      Cuisine:<input type="text" name="cuisine"><br>
+      Street:<input type="text" name="street"><br>
+      Building:<input type="text" name="building"><br>
+      Zipcode:<input type="text" name="zipcode"><br>
+      Coord:<br>
+      GPS Coordinates (lat.)<input type="text" name="lat" value="<%= re.address.lat %>"><br>
+      GPS Coordinates (lon.)<input type="text" name="lon" value="<%= re.address.lon %>"><br>
+      Photo:<input type="file" name="photo"><br>
+      <input type="submit" value="Upload">
+    </form>
+  </body>
+</html>
