@@ -356,6 +356,9 @@ function updateRestaurant(db,target,criteria,callback) {
 		callback(result);
 	});
 }
+function updateScore(db, target, criteria, callback){
+	
+}
 
 function gpsDecimal(direction,degrees,minutes,seconds) {
   var d = degrees + minutes / 60 + seconds / (60 * 60);
