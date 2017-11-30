@@ -1,0 +1,13 @@
+<html>
+    <body>
+    <h1>search result</h1>
+    <p>Number of restaurant: <%= re.length %> </p>
+    <ul>
+    <% re.forEach(function(p) {%>
+      <li><a href=/restaurantDetail?_id=<%= p._id %>><%= p.resName %></a></li>
+    <% }); %>
+    </ul>
+    <br>
+    </script>
+    </body>
+</html>

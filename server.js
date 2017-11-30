@@ -152,14 +152,15 @@ app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
 	var target = {'_id':req.query._id};
 	if (req.session.username == req.body.owner){
+<<<<<<< HEAD
 		remove(res,target);
+=======
+		remove(res,{_id:ObjectId(req.query._id)});
+>>>>>>> 7b4ba9c869c132c79c71e6615fe85213a600754e
 	}else{
 		res.status(401);
 		res.end("you are not the owner of the document");
 	}
-})
-app.get('/search',function(req,res){
-	//TODO filter restaurant
 })
 app.get('/restaurantDetail',function(req,res){
 	//get one
@@ -192,40 +193,101 @@ app.post('/rate',function(req,res){
 	
 	rating(req,res,req.body);
 })
-app.post('api/restaurant/create',function(req,res){
+app.post('/api/restaurant/create',function(req,res){
 	//TODO add restauramt
 	var body = req.body;
-	create(res,body);
+	apicreate(req,res,body);
 });
-
-
+app.get('/search',function(req,res){
+	res.render('search');
+});
+app.post('/search',function(req,res){
+	var q = req.body.qs;
+	console.log(q);
+	c = {}
+	c[q]=req.body.a;
+	console.log(c);
+	MongoClient.connect(mongourl, function(err, db) {
+			assert.equal(err,null);
+			console.log('Connected to MongoDB\n');
+		findRestaurants(db,c,20,function(restaurants) {
+			db.close();
+			console.log('Disconnected MongoDB\n');
+			if (restaurants.length == 0) {
+				res.writeHead(500, {"Content-Type": "text/plain"});
+				res.end('Not found!');
+			}else{
+				res.status(200).render('result',{re:restaurants});
+			}
+		});
+	});
+});
+app.get('/api/restaurant/read/:q/:a', function(req,res) {
+	var c = {}
+	c[req.params.q]=req.params.a;
+	console.log(c);
+	MongoClient.connect(mongourl, function(err, db) {
+			assert.equal(err,null);
+			console.log('Connected to MongoDB\n');
+		findRestaurants(db,c,20,function(restaurants) {
+			db.close();
+			console.log('Disconnected MongoDB\n');
+			if (restaurants.length == 0) {
+				res.writeHead(500, {"Content-Type": 'application/json'});
+				res.send({});
+			}else{
+				res.writeHead(200, {"Content-Type": 'application/json'});
+				res.send(restaurants);
+			}
+		});
+	});
+});
 //Method for mongodb ops
 
-function searchbyborough(res) {
-	MongoClient.connect(mongourl, function(err, db) {
-		assert.equal(null, err);
-		findDistinctBorough(db, function(boroughs) {
+function apicreate(req,res,queryAsObject) {
+	var new_r = {};	// document to be inserted
+	if (queryAsObject.resID) new_r['resID'] = queryAsObject.resID;
+	new_r['resName'] = queryAsObject.resName;
+	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
+	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
+	if(req.files){
+		if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
+		if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
+	}
+	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
+		var address = {};
+		if (queryAsObject.building) address['building'] = queryAsObject.building;
+		if (queryAsObject.street) address['street'] = queryAsObject.street;
+		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
+		if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
+		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
+		new_r['address'] = address;
+	}
+		new_r['grades'] = [];
+
+	new_r['owner'] = req.session.username;
+
+	console.log('About to insert: ' + JSON.stringify(new_r));
+
+	MongoClient.connect(mongourl,function(err,db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		insertRestaurant(db,new_r,function(result) {
 			db.close();
-			res.writeHead(200, {"Content-Type": "text/html"});
-			res.write("<html><body>");
-			res.write("<form action=\"/search\" method=\"get\">");
-			res.write("Borough: ");
-			res.write("<select name=\"borough\">");
-			for (i in boroughs) {
-				res.write("<option value=\"" +
-					boroughs[i] + "\">" + boroughs[i] + "</option>");
+			if(result.result.ok ==1){
+				var temp = {}
+				temp['_id'] = result.insertedId;
+				temp['status'] = "ok"
+				res.setHeader('Content-Type', 'application/json');
+				res.send(temp);
+			}else{
+				var temp = {}
+				temp['status'] = "failed"
+				res.setHeader('Content-Type', 'application/json');
+				res.send(temp);
 			}
-			res.write("</select>");
-			res.write("<input type=\"submit\" value=\"Search\">");
-			res.write("</form>");
-			res.write("</body></html>");
-			res.end();
-			/*
-			console.log(today.toTimeString() + " " + "CLOSED CONNECTION "
-							+ req.connection.remoteAddress);
-			*/
 		});
- 	});
+	});
 }
 function update(req,res,queryAsObject){
 	var new_r = {};	// document to be inserted
