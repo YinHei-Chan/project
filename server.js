@@ -192,7 +192,6 @@ app.post('/api/restaurant/create',function(req,res){
 	var body = req.body;
 	apicreate(req,res,body);
 });
-app.get
 app.get('/search',function(req,res){
 	res.render('search');
 });
