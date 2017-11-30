@@ -1,7 +1,7 @@
 <http>
   <body>
     <form action="/update?_id=<%= re._id%>" method="POST" encType="multipart/form-data">
-      Restaurant Name:<input type="text" name="resName" value="<%= re.resName %>"><br>
+      Restaurant Name:<input type="text" name="resName" value="<%= re.resName %>" required><br>
       Restaurant ID:<input type="text" name="resID" value="<%= re.resID %>"><br>
       Borough:<input type="text" name="borough" value="<%= re.borough %>"><br>
       Cuisine:<input type="text" name="cuisine" value="<%= re.cuisine %>"><br>
