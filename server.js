@@ -144,10 +144,11 @@ app.post('/update',function(req,res){
 		update(req,res,req.body);
 	else{
 		res.status(401);
+		res.end('You are not authorized to update the restaurant');
 	}
 })
 
-app.delete('/restaurant',function(req,res){
+app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
 	if (req.session.username == req.body.owner){
 		remove(res,{'id':req.body.id});
@@ -209,6 +210,7 @@ function searchbyborough(res) {
 }
 function update(req,res,queryAsObject){
 	var new_r = {};	// document to be inserted
+	var target = req.query._id;
 	if (queryAsObject.resID) new_r['resID'] = queryAsObject.resID;
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
@@ -230,13 +232,14 @@ function update(req,res,queryAsObject){
 
 	new_r['owner'] = req.session.username;
 	console.log('About to insert: ' + JSON.stringify(new_r));
+	console.log(target);
 
 	MongoClient.connect(mongourl,function(err,db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		updateRestaurant(db,queryAsObject._id,new_r,function(result) {
+		updateRestaurant(db,req.query._id,new_r,function(result) {
 			db.close();
-			res.redirect('/restaurantDetail?_id='+queryAsObject._id)
+			res.redirect('/restaurantDetail?_id='+target);
 		});
 	});
 }
@@ -347,7 +350,7 @@ function findDistinctBorough(db,callback) {
 	});
 }
 function updateRestaurant(db,_id,criteria,callback) {
-	db.collection('project').updateOne({'_id':_id},criteria,function(err,result) {
+	db.collection('project').updateOne({_id:_id},{$set:criteria},function(err,result) {
 		assert.equal(err,null);
 		console.log("UPDATE was successfully");
 		callback(result);
