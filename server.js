@@ -213,12 +213,6 @@ function update(req,res,queryAsObject){
 		if (queryAsObject.coord) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
-	if (queryAsObject.score) {
-		var grade = {};
-		grade['user'] = queryAsObject.user;
-		grade['score'] = queryAsObject.score;
-		new_r['grades'] = grade;
-	}
 	new_r['owner'] = queryAsObject.owner;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
