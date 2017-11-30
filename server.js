@@ -151,7 +151,7 @@ app.post('/update',function(req,res){
 app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
 	if (req.session.username == req.body.owner){
-		remove(res,{'id':req.body.id});
+		remove(res,{'_id':req.query._id});
 	}else{
 		res.status(401);
 		res.end("you are not the owner of the document");
@@ -349,8 +349,8 @@ function findDistinctBorough(db,callback) {
 		callback(result);
 	});
 }
-function updateRestaurant(db,_id,criteria,callback) {
-	db.collection('project').updateOne({_id:_id},{$set:criteria},function(err,result) {
+function updateRestaurant(db,target,criteria,callback) {
+	db.collection('project').updateOne({_id:ObjectId(target)},{$set:criteria},function(err,result) {
 		assert.equal(err,null);
 		console.log("UPDATE was successfully");
 		callback(result);
