@@ -119,15 +119,24 @@ app.get('/map', function(req,res) {
   res.render('gmap.ejs',
              {lat:req.query.lat,lon:req.query.lon});
 });
-app.patch('/restaurant',function(req,res){
+app.get('/update',function(req,res){
 	//TODO modify restaurant and rating
+	if(req.query._id != null){
+		res.render('update',{re:req})
+	}
+	else{
+		res.status(401);
+	}
+})
+app.post('/update',function(req,res){
+
 	if(req.body.owner == req.session.username)
 		update(res,req.body);
 	else{
 		res.status(401);
 	}
 })
-app.post('/deleteRestaurant',function(req,res){
+app.delete('/restaurant',function(req,res){
 	//TODO delete restaurant
 	if (req.session.username == req.body.owner){
 		remove(res,{'id':req.body.id});
@@ -150,7 +159,7 @@ app.post('/rate',function(req,res){
 		}
 	});
 	//TODO modify restaurant
-	modifyrestaurant();
+	update();
 })
 app.post('api/restaurant/create',function(req,res){
 	//TODO add restauramt
@@ -204,13 +213,7 @@ function update(req,res,queryAsObject){
 		if (queryAsObject.coord) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
-	if (queryAsObject.score) {
-		var grade = {};
-		grade['user'] = queryAsObject.user;
-		grade['score'] = queryAsObject.score;
-		new_r['grades'] = grade;
-	}
-	new_r['owner'] = req.session.username;
+	new_r['owner'] = queryAsObject.owner;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
@@ -225,13 +228,12 @@ function update(req,res,queryAsObject){
 }
 
 function create(req,res,queryAsObject) {
-	console.log(queryAsObject);
 	var new_r = {};	// document to be inserted
 	if (queryAsObject.id) new_r['resId'] = queryAsObject.resID;
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if(req.files){
+	if(queryAsObject.files){
 		if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
 		if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
 	}
@@ -244,9 +246,13 @@ function create(req,res,queryAsObject) {
 		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
-		new_r['grades'] = [];
-
-	new_r['owner'] = req.session.username;
+	if (queryAsObject.score) {
+		var grade = {};
+		grade['user'] = queryAsObject.user;
+		grade['score'] = queryAsObject.score;
+		new_r['grades'] = grade;
+	}
+	new_r['owner'] = queryAsObject.owner;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
@@ -333,10 +339,11 @@ function findDistinctBorough(db,callback) {
 function updateRestaurant(db,_id,criteria,callback) {
 	db.collection('project').updateOne({'$_id':ObjectID(_id)},criteria,function(err,result) {
 		assert.equal(err,null);
-		console.log("Delete was successfully");
+		console.log("UPDATE was successfully");
 		callback(result);
 	});
 }
+
 function gpsDecimal(direction,degrees,minutes,seconds) {
   var d = degrees + minutes / 60 + seconds / (60 * 60);
   return (direction === 'S' || direction === 'W') ? d *= -1 : d;
