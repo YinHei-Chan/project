@@ -122,20 +122,31 @@ app.get('/map', function(req,res) {
 app.get('/update',function(req,res){
 	//TODO modify restaurant and rating
 	if(req.query._id != null){
-		res.render('update',{re:req})
-	}
-	else{
+		MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		findRestaurants(db,{_id:ObjectId(req.query._id)},1,function(restaurants) {
+			db.close();
+			console.log('Disconnected MongoDB\n');
+			if (restaurants.length == 0) {
+				res.writeHead(500, {"Content-Type": "text/plain"});
+				res.end('Not found!');
+			}else{
+				res.render('update',{re:restaurants[0]});
+			}})
+		})}else{
 		res.status(401);
 	}
 })
 app.post('/update',function(req,res){
-
+	console.log(req.body);
 	if(req.body.owner == req.session.username)
-		update(res,req.body);
+		update(req,res,req.body);
 	else{
 		res.status(401);
 	}
 })
+
 app.delete('/restaurant',function(req,res){
 	//TODO delete restaurant
 	if (req.session.username == req.body.owner){
@@ -198,23 +209,26 @@ function searchbyborough(res) {
 }
 function update(req,res,queryAsObject){
 	var new_r = {};	// document to be inserted
-	if (queryAsObject.id) new_r['resId'] = queryAsObject.resID;
+	if (queryAsObject.resID) new_r['resID'] = queryAsObject.resID;
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
-	if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
+	if(req.files){
+		if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
+		if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
+	}
 	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
 		var address = {};
 		if (queryAsObject.building) address['building'] = queryAsObject.building;
 		if (queryAsObject.street) address['street'] = queryAsObject.street;
 		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
-		if (queryAsObject.coord) address['lon'] = queryAsObject.lon;
-		if (queryAsObject.coord) address['lat'] = queryAsObject.lat;
+		if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
+		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
-	new_r['owner'] = queryAsObject.owner;
+		new_r['grades'] = [];
 
+	new_r['owner'] = req.session.username;
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
 	MongoClient.connect(mongourl,function(err,db) {
@@ -229,11 +243,11 @@ function update(req,res,queryAsObject){
 
 function create(req,res,queryAsObject) {
 	var new_r = {};	// document to be inserted
-	if (queryAsObject.id) new_r['resId'] = queryAsObject.resID;
+	if (queryAsObject.resID) new_r['resID'] = queryAsObject.resID;
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if(queryAsObject.files){
+	if(req.files){
 		if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
 		if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
 	}
@@ -246,13 +260,9 @@ function create(req,res,queryAsObject) {
 		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
-	if (queryAsObject.score) {
-		var grade = {};
-		grade['user'] = queryAsObject.user;
-		grade['score'] = queryAsObject.score;
-		new_r['grades'] = grade;
-	}
-	new_r['owner'] = queryAsObject.owner;
+		new_r['grades'] = [];
+
+	new_r['owner'] = req.session.username;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
@@ -337,7 +347,7 @@ function findDistinctBorough(db,callback) {
 	});
 }
 function updateRestaurant(db,_id,criteria,callback) {
-	db.collection('project').updateOne({'$_id':ObjectID(_id)},criteria,function(err,result) {
+	db.collection('project').updateOne({'_id':_id},criteria,function(err,result) {
 		assert.equal(err,null);
 		console.log("UPDATE was successfully");
 		callback(result);
