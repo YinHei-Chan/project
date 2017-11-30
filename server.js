@@ -102,7 +102,7 @@ app.post('/restaurant',function(req,res){
 		}
 	})*/
 	var body = req.body;
-	create(res,body);
+	create(req,res,body);
 });
 app.get('/restaurant',function(req,res){
 	//TODO get restaurant
@@ -127,7 +127,7 @@ app.patch('/restaurant',function(req,res){
 		res.status(401);
 	}
 })
-app.delete('/restaurant',function(req,res){
+app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
 	if (req.session.username == req.body.owner){
 		remove(res,{'id':req.body.id});
@@ -187,14 +187,14 @@ function searchbyborough(res) {
 		});
  	});
 }
-function update(res,queryAsObject){
+function update(req,res,queryAsObject){
 	var new_r = {};	// document to be inserted
 	if (queryAsObject.id) new_r['resId'] = queryAsObject.resID;
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if (queryAsObject.files.photo) new_r['photo'] = queryAsObject.files.photo.data.toString('base64');
-	if (queryAsObject.files.photo) new_r['photo_mime'] = queryAsObject.files.photo.mimetype;
+	if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
+	if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
 	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
 		var address = {};
 		if (queryAsObject.building) address['building'] = queryAsObject.building;
@@ -210,7 +210,7 @@ function update(res,queryAsObject){
 		grade['score'] = queryAsObject.score;
 		new_r['grades'] = grade;
 	}
-	new_r['owner'] = queryAsObject.owner;
+	new_r['owner'] = req.session.username;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
@@ -224,15 +224,16 @@ function update(res,queryAsObject){
 	});
 }
 
-function create(res,queryAsObject) {
+function create(req,res,queryAsObject) {
+	console.log(queryAsObject);
 	var new_r = {};	// document to be inserted
 	if (queryAsObject.id) new_r['resId'] = queryAsObject.resID;
 	new_r['resName'] = queryAsObject.resName;
 	if (queryAsObject.borough) new_r['borough'] = queryAsObject.borough;
 	if (queryAsObject.cuisine) new_r['cuisine'] = queryAsObject.cuisine;
-	if(queryAsObject.files){
-		if (queryAsObject.files.photo) new_r['photo'] = queryAsObject.files.photo.data.toString('base64');
-		if (queryAsObject.files.photo) new_r['photo_mime'] = queryAsObject.files.photo.mimetype;
+	if(req.files){
+		if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
+		if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
 	}
 	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
 		var address = {};
@@ -243,13 +244,9 @@ function create(res,queryAsObject) {
 		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
-	if (queryAsObject.score) {
-		var grade = {};
-		grade['user'] = queryAsObject.user;
-		grade['score'] = queryAsObject.score;
-		new_r['grades'] = grade;
-	}
-	new_r['owner'] = queryAsObject.owner;
+		new_r['grades'] = [];
+
+	new_r['owner'] = req.session.username;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 

@@ -2,6 +2,7 @@
     <body>
         <h1><%= re.resName %></h1>
         <img src="data:<%= re.photo_mime %>;base64, <%= re.photo %>">
+        <p>Owner: <%= re.owner %></p><br>
         <p>Borough: <%= re.borough %></p><br>
         <p>Cuisine: <%= re.cuisine %></p><br>
         <p>Street: <%= re.address.street %></p><br>
@@ -11,11 +12,11 @@
         <p>Rating:<br>
             <ol>
                 <% re.grades.forEach(function(p) {%>
-                <li><% re.grades.score %> (<%= re.grades.user %>)</li>
+                <li><%= p.score %> (<%= p.user %>)</li>
                 <% }); %>
             </ol></p>
         <p><a href="/map?lat=<%= re.lat %>&lon=<%= re.lon %>">Google Map</a></p><br>
         <p><a href=/rate>Rate</a><br><a href=/update>Edit</a><br><a href="/">Go Back</a></p>
-        
+        <form action="/deleteRestaurant" method="POST"><input type="submit" value="Delete"></form>
     </body>
 </html>
