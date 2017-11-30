@@ -37,7 +37,7 @@ app.get('/',function(req,res) {
 		MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		findRestaurants(db,{},20,function(restaurants) {
+		findRestaurants(db,{},1000,function(restaurants) {
 			db.close();
 			console.log('Disconnected MongoDB\n');	
 					res.status(200).render('home',{name:req.session.username,re:restaurants});
@@ -150,8 +150,9 @@ app.post('/update',function(req,res){
 
 app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
+	var target = {'_id':req.query._id};
 	if (req.session.username == req.body.owner){
-		remove(res,{'_id':req.query._id});
+		remove(res,target);
 	}else{
 		res.status(401);
 		res.end("you are not the owner of the document");
@@ -172,15 +173,15 @@ app.get('/rate', function(req,res){
 		findRestaurants(db,{_id:ObjectId(req.query._id)},1,function(restaurants) {
 			db.close();
 			console.log('Disconnected MongoDB\n');
+			if(restaurants.grades == null){
+				res.render('rating',{re:restaurants[0]});
+			}
+			else{
 			restaurants.grades.forEach(function(p){
-			if(p.name == req.session.name){
+			if(p.user == req.session.name){
 				res.end('you have already rated this');
 				}});
-			if (restaurants.length == 0) {
-				res.writeHead(500, {"Content-Type": "text/plain"});
-				res.end('Not found!');
-			}else{
-				res.render('rating',{re:restaurants[0]});
+			res.render('rating',{re:restaurants[0]});
 			}})
 		})}else{
 		res.status(401);
@@ -188,7 +189,8 @@ app.get('/rate', function(req,res){
 })
 app.post('/rate',function(req,res){
 	//TODO modify restaurant
-	updateScore(res,req.body);
+	
+	rating(req,res,req.body);
 })
 app.post('api/restaurant/create',function(req,res){
 	//TODO add restauramt
@@ -262,15 +264,17 @@ function update(req,res,queryAsObject){
 }
 
 function rating(req, res, queryAsObject){
-	var rated = [];
-	rated['user'] = res.session.username;
-	rated['score'] = queryAsObject.grades.score;
-	console.log('About to insert: ' + JSON.stringify(rated));
+	var grades = {};
+	if(queryAsObject.score){
+		grades['user'] = req.session.username;
+		grades['score'] = queryAsObject.score;
+	}
+	console.log('About to insert: ' + JSON.stringify(grades));
 
 	MongoClient.connect(mongourl,function(err,db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		updateRestaurant(db,req.query._id,rated,function(result) {
+		updateScore(db,req.query._id,grades,function(result) {
 			db.close();
 			res.redirect('/restaurantDetail?_id='+req.query._id);
 		});
@@ -369,7 +373,7 @@ function insertRestaurant(db,r,callback) {
 }
 
 function deleteRestaurant(db,criteria,callback) {
-	db.collection('project').deleteOne(criteria,function(err,result) {
+	db.collection('project').remove(criteria,function(err,result) {
 		assert.equal(err,null);
 		console.log("Delete was successfully");
 		callback(result);
@@ -390,7 +394,7 @@ function updateRestaurant(db,target,criteria,callback) {
 	});
 }
 function updateScore(db, target, criteria, callback){
-	db.collection('project').updateOne({_id:ObjectId(target)}, {$push: {grades: criteria}}, function(err, result){
+	db.collection('project').updateOne({_id:ObjectId(target)}, {$push: {grades: {$each: [criteria]}}}, function(err, result){
 		assert.equal(err,null);
 		console.log('Rating success');
 		callback(result);

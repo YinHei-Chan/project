@@ -1,7 +1,7 @@
 <http>
   <body>
     <form action="/rate?_id=<%= re._id %>" method="POST">
-      Please rate to this restaurant: <input type="number" name="score" min="1" max="10"><br>
+      Please rate to this restaurant: <input type="number" name="score" min="1" max="10" required><br>
       <input type="submit" value="Submit">
     </form>
   </body>
