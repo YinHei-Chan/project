@@ -1,6 +1,21 @@
 <html>
     <body>
         <h1><%= re.resName %></h1>
-        <img src="data:'re.photo_mime[0]+';base64 ,'re.photo[0]'">
+        <img src="data:<%= re.photo_mime %>;base64, <%= re.photo %>">
+        <p>Borough: <%= re.borough %></p><br>
+        <p>Cuisine: <%= re.cuisine %></p><br>
+        <p>Street: <%= re.address.street %></p><br>
+        <p>Building: <%= re.address.building %></p><br>
+        <p>Zip code: <%= re.address.zipcode %></p><br>
+        <p>GPS:[<%= re.address.lat %>, <%= re.address.lon %>]</p><br>
+        <p>Rating:<br>
+            <ol>
+                <% re.grades.forEach(function(p) {%>
+                <li><% re.grades.score %> (<%= re.grades.user %>)</li>
+                <% }); %>
+            </ol></p>
+        <p><a href="/map?lat=<%= re.lat %>&lon=<%= re.lon %>">Google Map</a></p><br>
+        <p><a href=/rate>Rate</a><br><a href=/update>Edit</a><br><a href="/">Go Back</a></p>
+        
     </body>
 </html>

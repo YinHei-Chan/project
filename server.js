@@ -1,5 +1,3 @@
-
-
 var express = require('express');
 var session = require('cookie-session');
 var bodyParser = require('body-parser');
@@ -116,6 +114,10 @@ app.get('/restaurant',function(req,res){
   	}else{
  			res.status(200).render('create')
   	}
+});
+app.get('/map', function(req,res) {
+  res.render('gmap.ejs',
+             {lat:req.query.lat,lon:req.query.lon});
 });
 app.patch('/restaurant',function(req,res){
 	//TODO modify restaurant and rating
@@ -237,8 +239,8 @@ function create(res,queryAsObject) {
 		if (queryAsObject.building) address['building'] = queryAsObject.building;
 		if (queryAsObject.street) address['street'] = queryAsObject.street;
 		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
-		if (queryAsObject.coord) address['lon'] = queryAsObject.lon;
-		if (queryAsObject.coord) address['lat'] = queryAsObject.lat;
+		if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
+		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
 		new_r['address'] = address;
 	}
 	if (queryAsObject.score) {
@@ -284,7 +286,7 @@ function resdetail(res,criteria,max) {
 				res.writeHead(500, {"Content-Type": "text/plain"});
 				res.end('Not found!');
 			}else{
-				res.render('detail',restaurants);
+				res.render('detail',{re:restaurants[0]});
 			}
 		}
 	)}
