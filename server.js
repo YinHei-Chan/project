@@ -152,11 +152,7 @@ app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
 	var target = {'_id':req.query._id};
 	if (req.session.username == req.body.owner){
-<<<<<<< HEAD
-		remove(res,target);
-=======
 		remove(res,{_id:ObjectId(req.query._id)});
->>>>>>> 7b4ba9c869c132c79c71e6615fe85213a600754e
 	}else{
 		res.status(401);
 		res.end("you are not the owner of the document");
@@ -173,16 +169,22 @@ app.get('/rate', function(req,res){
 		console.log('Connected to MongoDB\n');
 		findRestaurants(db,{_id:ObjectId(req.query._id)},1,function(restaurants) {
 			db.close();
+			console.log(restaurants);
 			console.log('Disconnected MongoDB\n');
-			if(restaurants.grades == null){
+			console.log(restaurants[0].grades)
+			if(restaurants[0].grades == null){
 				res.render('rating',{re:restaurants[0]});
-			}
-			else{
-			restaurants.grades.forEach(function(p){
-			if(p.user == req.session.name){
-				res.end('you have already rated this');
-				}});
-			res.render('rating',{re:restaurants[0]});
+				console.log("im null")
+			}else{
+				console.log('not null')
+				restaurants[0].grades.forEach(function(p){
+				console.log(p.user);
+				console.log(req.session.username);
+				if(p.user == req.session.username){
+					console.log(p.user);
+					res.end('you have already rated this');
+					}});
+				res.render('rating',{re:restaurants[0]});
 			}})
 		})}else{
 		res.status(401);
