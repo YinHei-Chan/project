@@ -8,6 +8,9 @@
 		}
 	</style>
 	<link rel="stylesheet" type="text/css" href="layout.css">
+	<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMLKQziE1H1fKAagVOmJVTvfM_hMJwJgU&callback=loadMap">
+    </script>
 	<script type="text/javascript">
 		var loadMap = function () {
 			var myLatLng = { lat: <%=lat%>, lng: <%=lon%>};
@@ -22,9 +25,7 @@
 		};
 		window.onload = loadMap;
 	</script>
-	<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMLKQziE1H1fKAagVOmJVTvfM_hMJwJgU&callback=loadMap">
-    </script>
+	
 </head>
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <body>
