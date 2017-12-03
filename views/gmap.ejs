@@ -12,7 +12,7 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMLKQziE1H1fKAagVOmJVTvfM_hMJwJgU&callback=loadMap">
     </script>
 	<script type="text/javascript">
-		var loadMap = function () {
+		 function loadMap() {
 			var myLatLng = { lat: <%=lat%>, lng: <%=lon%>};
 			var map = new google.maps.Map(document.getElementById("map"), {
 				zoom: 12,
@@ -23,7 +23,7 @@
 				map: map,
 			});
 		};
-		window.onload = loadMap;
+		window.onload = loadMap();
 	</script>
 	
 </head>
