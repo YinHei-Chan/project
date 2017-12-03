@@ -150,9 +150,9 @@ app.post('/update',function(req,res){
 
 app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
-	var target = {'_id':ObjectId(req.query._id)};
+	var target = {'_id':req.query._id};
 	if (req.session.username == req.body.owner){
-		remove(res,target);
+		remove(res,{_id:ObjectId(req.query._id)});
 	}else{
 		res.status(401);
 		res.end("you are not the owner of the document");
@@ -169,16 +169,22 @@ app.get('/rate', function(req,res){
 		console.log('Connected to MongoDB\n');
 		findRestaurants(db,{_id:ObjectId(req.query._id)},1,function(restaurants) {
 			db.close();
+			console.log(restaurants);
 			console.log('Disconnected MongoDB\n');
+			console.log(restaurants[0].grades)
 			if(restaurants[0].grades == null){
 				res.render('rating',{re:restaurants[0]});
-			}
-			else{
-			restaurants[0].grades.forEach(function(p){
-			if(p.user == req.session.username){
-				res.end('you have already rated this');
-				}});
-			res.render('rating',{re:restaurants[0]});
+				console.log("im null")
+			}else{
+				console.log('not null')
+				restaurants[0].grades.forEach(function(p){
+				console.log(p.user);
+				console.log(req.session.username);
+				if(p.user == req.session.username){
+					console.log(p.user);
+					res.end('you have already rated this');
+					}});
+				res.render('rating',{re:restaurants[0]});
 			}})
 		})}else{
 		res.status(401);
@@ -250,16 +256,19 @@ function apicreate(req,res,queryAsObject) {
 		if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
 		if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
 	}
-	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
-		var address = {};
-		if (queryAsObject.building) address['building'] = queryAsObject.building;
-		if (queryAsObject.street) address['street'] = queryAsObject.street;
-		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
-		if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
-		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
-		new_r['address'] = address;
-	}
-		new_r['grades'] = [];
+	var address = {};
+	address['building'] = " ";
+	address['street'] = " ";
+	address['zipcode'] = " ";
+	address['lon'] = " ";
+	address['lat'] = " ";
+	new_r['address'] = address;
+	if (queryAsObject.building) address['building'] = queryAsObject.building;
+	if (queryAsObject.street) address['street'] = queryAsObject.street;
+	if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
+	if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
+	if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
+	new_r['grades'] = [];
 
 	new_r['owner'] = req.session.username;
 
@@ -349,15 +358,20 @@ function create(req,res,queryAsObject) {
 		if (req.files.photo) new_r['photo'] = req.files.photo.data.toString('base64');
 		if (req.files.photo) new_r['photo_mime'] = req.files.photo.mimetype;
 	}
-	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
-		var address = {};
-		if (queryAsObject.building) address['building'] = queryAsObject.building;
-		if (queryAsObject.street) address['street'] = queryAsObject.street;
-		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
-		if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
-		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
-		new_r['address'] = address;
-	}
+	var address = {};
+	address['building'] = " ";
+	address['street'] = " ";
+	address['zipcode'] = " ";
+	address['lon'] = " ";
+	address['lat'] = " ";
+	new_r['address'] = address;
+	if (queryAsObject.building) address['building'] = queryAsObject.building;
+	if (queryAsObject.street) address['street'] = queryAsObject.street;
+	if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
+	if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
+	if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
+	new_r['address'] = address;
+
 		new_r['grades'] = [];
 
 	new_r['owner'] = req.session.username;
