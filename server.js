@@ -175,7 +175,7 @@ app.get('/rate', function(req,res){
 			}
 			else{
 			restaurants.grades.forEach(function(p){
-			if(p.user == req.session.name){
+			if(p.user == req.session.username){
 				res.end('you have already rated this');
 				}});
 			res.render('rating',{re:restaurants[0]});
