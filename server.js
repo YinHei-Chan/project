@@ -150,7 +150,7 @@ app.post('/update',function(req,res){
 
 app.post('/deleteRestaurant',function(req,res){
 	//TODO delete restaurant
-	var target = {'_id':req.query._id};
+	var target = {'_id':ObjectID(req.query._id)};
 	if (req.session.username == req.body.owner){
 		remove(res,target);
 	}else{
