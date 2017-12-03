@@ -1,11 +1,12 @@
 {
-    "name": "server",
+    "name": "COMPS381F-Project",
     "description": "NodeJS Session",
-    "author": "Raymond SO <rso@ouhk.edu.hk>",
+    "author": "Chan Yin Hei",
     "version": "0.0.1",
     "dependencies": {
         "assert": "1.4.1",
         "body-parser": "*",
+        "bx": "^0.3.2",
         "cookie-session": "*",
         "ejs": "*",
         "express": "^4.16.2",
