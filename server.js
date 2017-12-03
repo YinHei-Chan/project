@@ -170,11 +170,11 @@ app.get('/rate', function(req,res){
 		findRestaurants(db,{_id:ObjectId(req.query._id)},1,function(restaurants) {
 			db.close();
 			console.log('Disconnected MongoDB\n');
-			if(restaurants.grades == null){
+			if(restaurants[0].grades == null){
 				res.render('rating',{re:restaurants[0]});
 			}
 			else{
-			restaurants.grades.forEach(function(p){
+			restaurants[0].grades.forEach(function(p){
 			if(p.user == req.session.username){
 				res.end('you have already rated this');
 				}});
