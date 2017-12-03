@@ -351,11 +351,11 @@ function create(req,res,queryAsObject) {
 	}
 	if (queryAsObject.building || queryAsObject.street || queryAsObject.zipcode || queryAsObject.lon ||queryAsObject.lat) {
 		var address = {};
-		if (queryAsObject.building) address['building'] = queryAsObject.building;
-		if (queryAsObject.street) address['street'] = queryAsObject.street;
-		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode;
-		if (queryAsObject.lon) address['lon'] = queryAsObject.lon;
-		if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
+		if (queryAsObject.building) address['building'] = queryAsObject.building; else address['building'] = "";
+		if (queryAsObject.street) address['street'] = queryAsObject.street; else address['street'] = "";
+		if (queryAsObject.zipcode) address['zipcode'] = queryAsObject.zipcode; else address['zipcode'] = "";
+		if (queryAsObject.lon) address['lon'] = queryAsObject.lon; 
+		if (queryAsObject.lat) address['lat'] = queryAsObject.lat; 
 		new_r['address'] = address;
 	}
 		new_r['grades'] = [];
