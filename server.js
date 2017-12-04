@@ -277,7 +277,7 @@ function apicreate(req,res,queryAsObject) {
 	if (queryAsObject.lat) address['lat'] = queryAsObject.lat;
 	new_r['grades'] = [];
 
-	new_r['owner'] = req.session.username;
+	new_r['owner'] = queryAsObject.owner;
 
 	console.log('About to insert: ' + JSON.stringify(new_r));
 
