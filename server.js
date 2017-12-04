@@ -230,6 +230,7 @@ app.post('/search',function(req,res){
 });
 app.get('/api/restaurant/read/:q/:a', function(req,res) {
 	var c = {}
+	console.log(req.params);
 	c[req.params.q]=req.params.a;
 	console.log(c);
 	MongoClient.connect(mongourl, function(err, db) {
