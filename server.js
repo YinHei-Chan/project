@@ -242,11 +242,13 @@ app.get('/api/restaurant/read/:q/:a', function(req,res) {
 			if (restaurants.length == 0) {
 				res.setHeader("Content-Type",'application/json')
 				res.writeHead(500);
-				res.esnd({});
+				res.write({});
+				res.end();
 			}else{
 				res.setHeader("Content-Type",'application/json')
 				res.writeHead(500);
-				res.end(restaurants);
+				res.write(restaurants);
+				res.end();
 			}
 		});
 	});
