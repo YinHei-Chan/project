@@ -240,13 +240,13 @@ app.get('/api/restaurant/read/:q/:a', function(req,res) {
 			db.close();
 			console.log('Disconnected MongoDB\n');
 			if (restaurants.length == 0) {
-				res.setHeader("Content-Type",'application/json')
-				res.writeHead(500);
+				/*res.setHeader("Content-Type",'application/json')
+				res.writeHead(500);*/
 				res.write({});
 				res.end();
 			}else{
-				res.setHeader("Content-Type",'application/json')
-				res.writeHead(500);
+				/*res.setHeader("Content-Type",'application/json')
+				res.writeHead(500);*/
 				res.write(restaurants);
 				res.end();
 			}
