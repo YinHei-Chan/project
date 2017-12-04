@@ -1,7 +1,9 @@
 <html>
     <body>
         <h1><%= re.resName %></h1>
+        <%if(re.photo_mime == "jpeg){ %>
         <img src="data:<%= re.photo_mime %>;base64, <%= re.photo %>">
+        }%>
         <p>Owner: <%= re.owner %></p><br>
         <p>Restaurant ID: <%= re.resID %></p><br>
         <p>Borough: <%= re.borough %></p><br>
