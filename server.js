@@ -121,6 +121,10 @@ app.get('/map', function(req,res) {
 });
 app.get('/update',function(req,res){
 	//TODO modify restaurant and rating
+	if(!req.session.authenticated){
+		res.redirect('/login');
+		return;
+	}
 	if(req.query._id != null){
 		MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
