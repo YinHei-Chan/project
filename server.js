@@ -246,7 +246,7 @@ app.get('/api/restaurant/read/:q/:a', function(req,res) {
 			}else{
 				/*res.setHeader("Content-Type",'application/json')
 				res.writeHead(500);*/
-				res.end(restaurants);
+				res.end(JSON.stringify(restaurants));
 			}
 		});
 	});
