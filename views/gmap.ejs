@@ -7,10 +7,12 @@
 			height: auto;
 		}
 	</style>
-	<link rel="stylesheet" type="text/css" href="layout.css">
+	<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMLKQziE1H1fKAagVOmJVTvfM_hMJwJgU&callback=loadMap">
+    </script>
 	<script type="text/javascript">
 		var loadMap = function () {
-			var myLatLng = { lat: <%=lat%>, lng: <%=lon%>};
+			var myLatLng = { lng: <%=lon%>,lat: <%=lat%> };
 			var map = new google.maps.Map(document.getElementById('map'), {
 				zoom: 12,
 				center: myLatLng
@@ -22,9 +24,7 @@
 		};
 		window.onload = loadMap;
 	</script>
-	<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMLKQziE1H1fKAagVOmJVTvfM_hMJwJgU&callback=loadMap">
-    </script>
+	
 </head>
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <body>
